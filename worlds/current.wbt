@@ -11,8 +11,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.9777640988839889 0.01466756156688041 0.2091942388577244 0.14317307532335852
-  position -3.1035960535822036 -16.61913449872217 49.567675444490774
+  orientation 0 1 0 0
+  position 1.1754314728106283 -10.231950795877724 5.979460902405754
 }
 TexturedBackground {
 }
@@ -20,8 +20,8 @@ TexturedBackgroundLight {
   castShadows FALSE
 }
 Robot {
-  translation 1.2842 -9.7041 -0.00225638
-  rotation 0.9984228844617506 -6.02006930335304e-07 -0.05614039350339132 -5.307179586466759e-06
+  translation 1.11689 -9.79653 0.000461728
+  rotation -0.0019929090209002283 0.0010054295060407728 -0.9999975087094682 1.70714
   children [
     GPS {
       name "odometry"
@@ -373,7 +373,7 @@ Robot {
           name "distance_sensor3"
           lookupTable [
             0.02 0 0
-            0.3 1000 0
+            0.9 1000 0
           ]
           type "infra-red"
         }
@@ -405,7 +405,7 @@ Robot {
           name "distance_sensor6"
           lookupTable [
             0.02 0 0
-            0.3 1000 0
+            0.9 1000 0
           ]
           type "infra-red"
         }
@@ -437,7 +437,7 @@ Robot {
           name "distance_sensor1"
           lookupTable [
             0.02 0 0
-            0.3 1000 0
+            0.9 1000 0
           ]
           type "infra-red"
         }
@@ -469,7 +469,7 @@ Robot {
           name "distance_sensor4"
           lookupTable [
             0.02 0 0
-            0.3 1000 0
+            0.9 1000 0
           ]
           type "infra-red"
         }
@@ -501,7 +501,7 @@ Robot {
           name "distance_sensor5"
           lookupTable [
             0.02 0 0
-            0.3 1000 0
+            0.9 1000 0
           ]
           type "infra-red"
         }
@@ -533,7 +533,7 @@ Robot {
           name "distance_sensor2"
           lookupTable [
             0.02 0 0
-            0.3 1000 0
+            0.9 1000 0
           ]
           type "infra-red"
         }
@@ -668,7 +668,7 @@ Robot {
       children [
         DEF WHEEL1 HingeJoint {
           jointParameters HingeJointParameters {
-            position -1.2440149514844093e-07
+            position -327.9978518177329
             axis 0 0 1
             anchor 0 0 0.1
           }
@@ -683,16 +683,16 @@ Robot {
           ]
           endPoint Solid {
             translation 0 0 0.1
-            rotation 0 0 -1 1.2287812309317772e-07
+            rotation 0 0 -1 1.2722158443944112
             children [
               DEF sr1 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.0976623335926962e-05
+                  position -724.1969373097983
                   anchor 0 0.05 0.02
                 }
                 endPoint Solid {
                   translation 0 0.05 0.02
-                  rotation -0.9999999999999999 0 0 1.0976604371331004e-05
+                  rotation 1 0 0 4.652558323033759
                   children [
                     DEF r1 Transform {
                       rotation 0 0 1 1.5708
@@ -722,13 +722,13 @@ Robot {
               }
               DEF sr2 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -2.8587525350601616e-05
+                  position -669.7665423863674
                   axis 0.707107 0.707107 0
                   anchor -0.03535 0.03535 0.02
                 }
                 endPoint Solid {
                   translation -0.03535 0.03535 0.02
-                  rotation -0.7071067811865475 -0.7071067811865475 0 2.858752725857814e-05
+                  rotation -0.7071067811865475 -0.7071067811865475 0 3.7488998253312387
                   children [
                     DEF r2 Transform {
                       rotation 0 0 1 2.27
@@ -748,12 +748,12 @@ Robot {
               }
               DEF sr3 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -0.000645199207689868
+                  position 653.2412268579833
                   anchor 0 -0.05 0.02
                 }
                 endPoint Solid {
                   translation 0 -0.05 0.02
-                  rotation -0.9999999999999999 0 0 0.0006451992078444319
+                  rotation -1 0 0 0.2100450886937015
                   children [
                     DEF r3 Transform {
                       rotation 0 0 1 1.5708
@@ -773,13 +773,13 @@ Robot {
               }
               DEF sr4 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -2.858752535056772e-05
+                  position 651.2684840969129
                   axis 0.707107 0.707107 0
                   anchor 0.03535 -0.03535 0.02
                 }
                 endPoint Solid {
                   translation 0.03535 -0.03535 0.02
-                  rotation -0.7071067811865475 -0.7071067811865475 0 2.858752725857814e-05
+                  rotation -0.7071067811865475 -0.7071067811865475 0 2.182787849764136
                   children [
                     DEF r4 Transform {
                       rotation 0 0 1 2.27
@@ -799,13 +799,13 @@ Robot {
               }
               DEF sr5 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -3.160368799019891e-05
+                  position -789.0051993549482
                   axis 0 1 0
                   anchor -0.05 0 0.02
                 }
                 endPoint Solid {
                   translation -0.05 0 0.02
-                  rotation 0 -0.9999999999999999 0 3.1603687257799236e-05
+                  rotation 0 1 0 2.6761493496796787
                   children [
                     DEF r5 Transform {
                       children [
@@ -824,13 +824,13 @@ Robot {
               }
               DEF sr6 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -3.160368799028933e-05
+                  position 615.251814868078
                   axis 0 1 0
                   anchor 0.05 0 0.02
                 }
                 endPoint Solid {
                   translation 0.05 0 0.02
-                  rotation 0 -1 0 3.1603687257799236e-05
+                  rotation 0 -1 0 0.5003452355214892
                   children [
                     DEF r6 Transform {
                       children [
@@ -849,13 +849,13 @@ Robot {
               }
               DEF sr7 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.4083986890241891e-05
+                  position -488.3585075420854
                   axis -0.707107 0.707107 0
                   anchor -0.03535 -0.03535 0.02
                 }
                 endPoint Solid {
                   translation -0.03535 -0.03535 0.02
-                  rotation 0.7071067811865475 -0.7071067811865475 0 1.408398604193032e-05
+                  rotation -0.7071067811865476 0.7071067811865476 0 1.7299464179223256
                   children [
                     DEF r7 Transform {
                       rotation 0 0 1 0.76
@@ -875,13 +875,13 @@ Robot {
               }
               DEF sr8 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.4083986890229968e-05
+                  position 628.7458791993041
                   axis -0.707107 0.707107 0
                   anchor 0.03535 0.03535 0.02
                 }
                 endPoint Solid {
                   translation 0.03535 0.03535 0.02
-                  rotation 0.7071067811865475 -0.7071067811865475 0 1.408398604193032e-05
+                  rotation -0.7071067811865476 0.7071067811865476 0 0.42734848134546577
                   children [
                     DEF r8 Transform {
                       rotation 0 0 1 0.76
@@ -964,7 +964,7 @@ Robot {
       children [
         DEF WHEEL1 HingeJoint {
           jointParameters HingeJointParameters {
-            position -1.2440149514844093e-07
+            position 356.79795291370084
             axis 0 0 1
             anchor 0 0 0.1
           }
@@ -979,16 +979,16 @@ Robot {
           ]
           endPoint Solid {
             translation 0 0 0.1
-            rotation 0 0 -1 1.2287812309317772e-07
+            rotation 0 0 1 4.939575711643997
             children [
               DEF sr1 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.0976623335926962e-05
+                  position -1222.6639576482867
                   anchor 0 0.05 0.02
                 }
                 endPoint Solid {
                   translation 0 0.05 0.02
-                  rotation -0.9999999999999999 0 0 1.0976604371331004e-05
+                  rotation -0.9999999999999999 0 0 3.726008055446892
                   children [
                     DEF r1 Transform {
                       rotation 0 0 1 1.5708
@@ -1018,13 +1018,13 @@ Robot {
               }
               DEF sr2 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -2.8587525350601616e-05
+                  position -1096.9288602781148
                   axis 0.707107 0.707107 0
                   anchor -0.03535 0.03535 0.02
                 }
                 endPoint Solid {
                   translation -0.03535 0.03535 0.02
-                  rotation -0.7071067811865475 -0.7071067811865475 0 2.858752725857814e-05
+                  rotation -0.7071067811865475 -0.7071067811865475 0 3.6546168288667786
                   children [
                     DEF r2 Transform {
                       rotation 0 0 1 2.27
@@ -1044,12 +1044,12 @@ Robot {
               }
               DEF sr3 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -0.000645199207689868
+                  position 1145.9377930478731
                   anchor 0 -0.05 0.02
                 }
                 endPoint Solid {
                   translation 0 -0.05 0.02
-                  rotation -0.9999999999999999 0 0 0.0006451992078444319
+                  rotation 1 0 0 2.39806714118839
                   children [
                     DEF r3 Transform {
                       rotation 0 0 1 1.5708
@@ -1069,13 +1069,13 @@ Robot {
               }
               DEF sr4 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -2.858752535056772e-05
+                  position 1159.932238058018
                   axis 0.707107 0.707107 0
                   anchor 0.03535 -0.03535 0.02
                 }
                 endPoint Solid {
                   translation 0.03535 -0.03535 0.02
-                  rotation -0.7071067811865475 -0.7071067811865475 0 2.858752725857814e-05
+                  rotation 0.7071067811865475 0.7071067811865475 0 3.8261415369739895
                   children [
                     DEF r4 Transform {
                       rotation 0 0 1 2.27
@@ -1095,13 +1095,13 @@ Robot {
               }
               DEF sr5 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -3.160368799019891e-05
+                  position -1113.5309039405417
                   axis 0 1 0
                   anchor -0.05 0 0.02
                 }
                 endPoint Solid {
                   translation -0.05 0 0.02
-                  rotation 0 -0.9999999999999999 0 3.1603687257799236e-05
+                  rotation 0 1 0 4.876080737424645
                   children [
                     DEF r5 Transform {
                       children [
@@ -1120,13 +1120,13 @@ Robot {
               }
               DEF sr6 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -3.160368799028933e-05
+                  position 1104.0762456028763
                   axis 0 1 0
                   anchor 0.05 0 0.02
                 }
                 endPoint Solid {
                   translation 0.05 0 0.02
-                  rotation 0 -1 0 3.1603687257799236e-05
+                  rotation 0 -0.9999999999999999 0 1.76436846073095
                   children [
                     DEF r6 Transform {
                       children [
@@ -1145,13 +1145,13 @@ Robot {
               }
               DEF sr7 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.4083986890241891e-05
+                  position -1039.3668727432319
                   axis -0.707107 0.707107 0
                   anchor -0.03535 -0.03535 0.02
                 }
                 endPoint Solid {
                   translation -0.03535 -0.03535 0.02
-                  rotation 0.7071067811865475 -0.7071067811865475 0 1.408398604193032e-05
+                  rotation -0.7071067811865475 0.7071067811865475 0 3.6418882485795034
                   children [
                     DEF r7 Transform {
                       rotation 0 0 1 0.76
@@ -1171,13 +1171,13 @@ Robot {
               }
               DEF sr8 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.4083986890229968e-05
+                  position 1037.8911166036437
                   axis -0.707107 0.707107 0
                   anchor 0.03535 0.03535 0.02
                 }
                 endPoint Solid {
                   translation 0.03535 0.03535 0.02
-                  rotation 0.7071067811865475 -0.7071067811865475 0 1.408398604193032e-05
+                  rotation 0.7071067811865476 -0.7071067811865476 0 5.11764438816766
                   children [
                     DEF r8 Transform {
                       rotation 0 0 1 0.76
@@ -1260,7 +1260,7 @@ Robot {
       children [
         DEF WHEEL1 HingeJoint {
           jointParameters HingeJointParameters {
-            position -1.2440149514844093e-07
+            position 169.53193626774893
             axis 0 0 1
             anchor 0 0 0.1
           }
@@ -1275,16 +1275,16 @@ Robot {
           ]
           endPoint Solid {
             translation 0 0 0.09
-            rotation 0 0 -1 1.2287812309317772e-07
+            rotation 0 0 0.9999999999999999 6.169118281079685
             children [
               DEF sr1 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.0976623335926962e-05
+                  position 992.2511649271531
                   anchor 0 0.05 0.02
                 }
                 endPoint Solid {
                   translation 0 0.05 0.02
-                  rotation -0.9999999999999999 0 0 1.0976604371331004e-05
+                  rotation -1 0 0 0.49211360722153624
                   children [
                     DEF r1 Transform {
                       rotation 0 0 1 1.5708
@@ -1314,13 +1314,13 @@ Robot {
               }
               DEF sr2 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -2.8587525350601616e-05
+                  position 256.76592664908503
                   axis 0.707107 0.707107 0
                   anchor -0.03535 0.03535 0.02
                 }
                 endPoint Solid {
                   translation -0.03535 0.03535 0.02
-                  rotation -0.7071067811865475 -0.7071067811865475 0 2.858752725857814e-05
+                  rotation 0.7071067811865476 0.7071067811865476 0 5.438514361901572
                   children [
                     DEF r2 Transform {
                       rotation 0 0 1 2.27
@@ -1340,12 +1340,12 @@ Robot {
               }
               DEF sr3 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -0.000645199207689868
+                  position -285.53417903539327
                   anchor 0 -0.05 0.02
                 }
                 endPoint Solid {
                   translation 0 -0.05 0.02
-                  rotation -0.9999999999999999 0 0 0.0006451992078444319
+                  rotation 0.9999999999999999 0 0 3.4923450948677126
                   children [
                     DEF r3 Transform {
                       rotation 0 0 1 1.5708
@@ -1365,13 +1365,13 @@ Robot {
               }
               DEF sr4 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -2.858752535056772e-05
+                  position -328.6818776376265
                   axis 0.707107 0.707107 0
                   anchor 0.03535 -0.03535 0.02
                 }
                 endPoint Solid {
                   translation 0.03535 -0.03535 0.02
-                  rotation -0.7071067811865475 -0.7071067811865475 0 2.858752725857814e-05
+                  rotation -0.7071067811865476 -0.7071067811865476 0 1.9562416642879883
                   children [
                     DEF r4 Transform {
                       rotation 0 0 1 2.27
@@ -1391,13 +1391,13 @@ Robot {
               }
               DEF sr5 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -3.160368799019891e-05
+                  position 1184.1923573322235
                   axis 0 1 0
                   anchor -0.05 0 0.02
                 }
                 endPoint Solid {
                   translation -0.05 0 0.02
-                  rotation 0 -0.9999999999999999 0 3.1603687257799236e-05
+                  rotation 0 0.9999999999999999 0 2.953519582461279
                   children [
                     DEF r5 Transform {
                       children [
@@ -1416,13 +1416,13 @@ Robot {
               }
               DEF sr6 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -3.160368799028933e-05
+                  position -219.6635785641186
                   axis 0 1 0
                   anchor 0.05 0 0.02
                 }
                 endPoint Solid {
                   translation 0.05 0 0.02
-                  rotation 0 -1 0 3.1603687257799236e-05
+                  rotation 0 -0.9999999999999999 0 6.03527812001267
                   children [
                     DEF r6 Transform {
                       children [
@@ -1441,13 +1441,13 @@ Robot {
               }
               DEF sr7 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.4083986890241891e-05
+                  position 248.15295623659756
                   axis -0.707107 0.707107 0
                   anchor -0.03535 -0.03535 0.02
                 }
                 endPoint Solid {
                   translation -0.03535 -0.03535 0.02
-                  rotation 0.7071067811865475 -0.7071067811865475 0 1.408398604193032e-05
+                  rotation 0.7071067811865475 -0.7071067811865475 0 3.1744560505858983
                   children [
                     DEF r7 Transform {
                       rotation 0 0 1 0.76
@@ -1467,13 +1467,13 @@ Robot {
               }
               DEF sr8 HingeJoint {
                 jointParameters HingeJointParameters {
-                  position -1.4083986890229968e-05
+                  position -213.19323913754943
                   axis -0.707107 0.707107 0
                   anchor 0.03535 0.03535 0.02
                 }
                 endPoint Solid {
                   translation 0.03535 0.03535 0.02
-                  rotation 0.7071067811865475 -0.7071067811865475 0 1.408398604193032e-05
+                  rotation -0.7071067811865475 0.7071067811865475 0 0.43506130655651365
                   children [
                     DEF r8 Transform {
                       rotation 0 0 1 0.76
