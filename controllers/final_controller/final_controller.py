@@ -16,22 +16,43 @@ def calc_distance_to_destination(robot):
     x, z = get_robot_coordinate(robot)
     return math.sqrt(((x_goal-x) ** 2) + ((z_goal-z) ** 2))
 
-# def update_robot_state():
+# def update_robot_state(ir_value_1):
     
+#     print(ir_value_1)
+#     if ir_value_1 < blind_spot_ir :
+#         print('in if')
+#         move_robot('stop')
+#     else : 
+#         move_robot('forward')
 
-def move_robot(direction): 
-    moves = {
-        'stop': [0, 0, 0], 
-        'rotate_right': [1, 1, 1], 
-        'rotate_left': [-1, -1, -1], 
-        'forward': [-2, 2, 0], 
-        'left': [-2, 2, 4], 
-        'right': [2, -2, -4], 
-        'back': [2, -2, 0]
-    }
+def get_bearing_in_degrees(north):
+    # calculate bearing angle in degrees 
+    rad = math.atan2(north[0], north[2])
+    bearing = (rad - 1.5708) / math.pi * 180.0
+    if bearing < 0.0:
+        bearing = bearing + 360.0
+    return bearing
+
+def move_robot_inertial(x, y, theta, heading):
+    rotation_matrix = np.array([[np.cos(heading), np.sin(heading), 0], [-np.sin(heading), np.cos(heading), 0], [0, 0, 1]])
+    temp = np.dot(rotation_matrix, np.array([x, y, theta]))
+    return move_robot(temp[0], temp[1], temp[2])
+
+
+def move_robot(x, y, theta): 
+    # moves = {
+        # 'stop': [0, 0, 0], 
+        # 'rotate_right': [1, 1, 1], 
+        # 'rotate_left': [-1, -1, -1], 
+        # 'forward': [-2, 2, 0], 
+        # 'left': [0, 2, -2], 
+        # 'right': [2, -2, -4], 
+        # 'back': [2, -2, 0]
+    # }
     
-    print(direction)
-    update_motor_speed(moves[direction])
+    inverse_matrix = np.array([[-0.33, 0.58, 0.33], [-0.33, -0.58, 0.33], [0.67, 0, 0.33]])
+    speed = np.matmul(inverse_matrix, np.array([x, y, theta]))
+    update_motor_speed(speed)
     
 
 if __name__ == "__main__":
@@ -44,9 +65,14 @@ if __name__ == "__main__":
     while robot.step(TIME_STEP) != -1:
 
         gps_values,compass_val,sonar_value,position_value,ir_value = read_sensors_values()
-        print(ir_value)
-        update_robot_state()  
-        move_robot('left')     
+        ir_value_1, ir_value_6, ir_value_3, ir_value_5, ir_value_2, ir_value_4 = ir_value
+        print(get_bearing_in_degrees(compass_val))
+       
+
+        robot_position = update_robot_state()
+        move_robot_inertial(-10, 0, 0, robot_position[2])
+        # update_robot_state(ir_value_1) 
+        # move_robot('right') 
         # DEFINE STATE MACHINE HERE!
 
         # update_motor_speed(input_omega=[0,0,0])

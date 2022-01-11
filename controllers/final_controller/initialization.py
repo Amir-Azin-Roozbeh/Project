@@ -178,6 +178,8 @@ def update_robot_state():
     robot_position[0] = gps_values[0]
     robot_position[1] = gps_values[1]
 
+    return robot_position
+
 def update_motor_speed(input_omega=robot_omega):
     motor_1.setVelocity(input_omega[0])
     motor_2.setVelocity(input_omega[1])
