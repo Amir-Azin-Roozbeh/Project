@@ -82,6 +82,8 @@ def check_if_obstacle(ir_value) -> List[Direction]:
     ir_value_1, ir_value_2, ir_value_3, ir_value_4, ir_value_5, ir_value_6 = ir_value
     if ir_value_5 < blind_spot_ir and ir_value_3 >= blind_spot_ir and ir_value_2 >= blind_spot_ir:
         return [Direction.UP_RIGHT_CORNER]
+    if ir_value_3 < blind_spot_ir and ir_value_6 >= blind_spot_ir and ir_value_5 >= blind_spot_ir: 
+        return [Direction.UP_LEFT_CORNER]
     if ir_value_1 < blind_spot_ir or ir_value_4 < blind_spot_ir:
         directions.append(Direction.DOWN)
     if ir_value_3 < blind_spot_ir or ir_value_5 < blind_spot_ir:
@@ -100,15 +102,14 @@ def follow_wall(obstacle_directions):
     number_of_obstacles = len(obstacle_directions)
     if number_of_obstacles == 1 : 
         if Direction.UP in obstacle_directions: 
-            return Direction.LEFT
+            return Direction.RIGHT
         if Direction.DOWN in obstacle_directions: 
             return Direction.RIGHT
         if Direction.RIGHT in obstacle_directions: 
             return Direction.UP
         if Direction.LEFT in obstacle_directions: 
             return Direction.DOWN
-        if Direction.UP_RIGHT_CORNER in obstacle_directions:
-            return Direction.UP_RIGHT_CORNER
+        return obstacle_directions[0]
 
 
 
@@ -124,12 +125,21 @@ def move(direction, theta_dot, robot_position):
         move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
     elif direction == Direction.UP_RIGHT_CORNER:
         counter = 0
-        print('dare mire toosh')
         while robot.step(TIME_STEP) != -1 and counter <= 200: 
             if counter <= 120: 
                 move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
             else: 
                 move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
+            counter += 1
+    elif direction == Direction.UP_LEFT_CORNER: 
+        counter = 0
+        while robot.step(TIME_STEP) != -1 and counter <= 300: 
+            if counter <= 100: 
+                move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
+            elif counter <= 250: 
+                move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
+            else:
+                move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
             counter += 1
 
 
@@ -145,7 +155,7 @@ if __name__ == "__main__":
         gps_values,compass_val,sonar_value,position_value,ir_value = read_sensors_values()
         
         x_current, y_current, _ = gps_values
-
+        print(ir_value)
         theta = math.atan2(Y_GOAL - gps_values[1], X_GOAL - gps_values[0]) * 180 / math.pi
         inertial_theta = get_bearing_in_degrees(compass_val)
         theta_dot = calculate_theta_dot(inertial_theta)
@@ -162,6 +172,7 @@ if __name__ == "__main__":
                 state = StatesEnum.MOVE_TOWARD_T
             else:
                 obstacle_directions = check_if_obstacle(ir_value)
+                print(obstacle_directions)
                 move_direction = follow_wall(obstacle_directions)
                 move(move_direction, theta_dot, robot_position)
         elif state == StatesEnum.STOP:
