@@ -11,17 +11,21 @@ from typing import List
 TIME_STEP = 32
 GPS_SAMPLING_PERIOD = 1000
 COMPASS_SAMPLING_PERIOD = 1000
-blind_spot_ir = 900
+blind_spot_ir = 920
 
 X_GOAL = -0.270026
 Y_GOAL = 9.34
 
 THETA_ACCURACY_THRESH = 10
 ROBOT_SPEED = 10
-EPSILON = 0.001
+
+EPSILON_LINE = 0.001
+EPSILON = 10
 
 X_START = 1.14
 Y_START = -8.96
+
+IS_LEFT = True 
 
 ############################################ Class
 class StatesEnum: # Enum
@@ -39,11 +43,11 @@ class Direction:
     # DOWN_RIGHT_CORNER = 6 
     # DOWN_LEFT_CORNER = 7
     CUREVE_DOWN = 8
-    CURVE_UP = 9 
+    CURVE = 9 
     CURVE_RIGHT = 10
     RIGHT_DOWN_CORNER = 11 
-    RIGHT_UP_CORNER = 12
-    LEFT_UP_CORNER = 13
+    RIGHT_CORNER = 12
+    LEFT_CORNER = 13
     LEFT_DOWN_CORNER = 14
 ############################################ Util functions
 def calc_distance_to_destination(robot):
@@ -79,17 +83,22 @@ def calculate_theta_dot(inertial_theta):
     return inertial_theta
 
 def check_if_obstacle(ir_value) -> Direction:
+    print('ir value',ir_value)
+    
     ir_value_1, ir_value_2, ir_value_3, ir_value_4, ir_value_5, ir_value_6 = ir_value
     number_of_on_irs = sum([ 1 if value<1000 else 0  for value in ir_value])
+    print('num', number_of_on_irs)
     if number_of_on_irs == 1 : 
         if ir_value_1 < blind_spot_ir: 
             return Direction.CUREVE_DOWN
         elif ir_value_3 < blind_spot_ir: 
-            return Direction.CURVE_UP
+            return Direction.CURVE
         elif ir_value_5 < blind_spot_ir: 
             return Direction.CURVE_RIGHT
         elif ir_value_2 < blind_spot_ir:
             return Direction.RIGHT
+        elif ir_value_6 < blind_spot_ir: 
+            return Direction.LEFT
 
     elif number_of_on_irs == 2 : 
         if ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir:
@@ -107,18 +116,25 @@ def check_if_obstacle(ir_value) -> Direction:
         elif ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir and ir_value_6 < blind_spot_ir:
             return Direction.LEFT_DOWN_CORNER
         elif ir_value_3 < blind_spot_ir and ir_value_5 < blind_spot_ir and ir_value_6 < blind_spot_ir:
-            return Direction.LEFT_UP_CORNER
+            return Direction.LEFT_CORNER
         elif ir_value_2 < blind_spot_ir and ir_value_5 < blind_spot_ir and ir_value_3 < blind_spot_ir: 
-            return Direction.RIGHT_UP_CORNER
+            return Direction.RIGHT_CORNER
 
     return None
 
 
 def follow_wall(direction, theta_dot, robot_position): 
+    global IS_LEFT
     if direction == Direction.UP: 
-        move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
+        if IS_LEFT == True: 
+            move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
+        else: 
+            move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
     elif direction == Direction.DOWN: 
-        move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
+        if IS_LEFT == True: 
+            move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
+        else : 
+            move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
     elif direction == Direction.RIGHT: 
         move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
     elif direction == Direction.LEFT:
@@ -146,23 +162,24 @@ def follow_wall(direction, theta_dot, robot_position):
                 #LEFT 
                 move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
             counter += 1
-    elif direction == Direction.CURVE_UP: 
+    elif direction == Direction.CURVE: 
         counter = 0
-        while robot.step(TIME_STEP) != -1 and counter <= 300: 
+        while robot.step(TIME_STEP) != -1 and counter <= 400: 
             if counter <= 120: 
-                #DOWN 
-                move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
-            elif counter <= 200: 
-                #RIGHT
+                #RIGHT 
                 move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
-            else:
+            elif counter <= 250: 
                 #UP
                 move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
+            else:
+                #LEFT
+                move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
             counter += 1
-    elif direction == Direction.LEFT_UP_CORNER: 
+    elif direction == Direction.LEFT_CORNER: 
         # down
+        print('are we here?')
         move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
-    elif direction == Direction.RIGHT_UP_CORNER: 
+    elif direction == Direction.RIGHT_CORNER: 
         # left
         move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2]) 
     elif direction == Direction.LEFT_DOWN_CORNER:  
@@ -174,12 +191,14 @@ def follow_wall(direction, theta_dot, robot_position):
 
 
 def make_line(x1, y1, x2, y2):
-    if abs(x2 - x1) < EPSILON:
+    if abs(x2 - x1) < EPSILON_LINE:
         return None, None
     m = (y2 - y1) / (x2 - x1)
     c = m * x1 - y1
     return m, c
 
+def euclid_distance(x1, y1, x2, y2):
+    return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
 if __name__ == "__main__":
@@ -189,33 +208,51 @@ if __name__ == "__main__":
     state: StatesEnum = StatesEnum.MOVE_TOWARD_T
     m, c = make_line(X_START, Y_START, X_GOAL, Y_GOAL)
 
+    iteration_bound = 0
     while robot.step(TIME_STEP) != -1:
-
         gps_values,compass_val,sonar_value,position_value,ir_value = read_sensors_values()
-        
         x_current, y_current, _ = gps_values
         theta = math.atan2(Y_GOAL - gps_values[1], X_GOAL - gps_values[0]) * 180 / math.pi
         inertial_theta = get_bearing_in_degrees(compass_val)
         theta_dot = calculate_theta_dot(inertial_theta)
-        print('state ', state)
-        print('ir value:', ir_value)
         if state == StatesEnum.MOVE_TOWARD_T:
-            if check_if_obstacle(ir_value): # if it detects an obstacle  
+            if check_if_obstacle(ir_value): # if it detects an obstacle 
+                hit_point = (x_current, y_current) 
+                distance_to_goal_hitpoint = euclid_distance(x_current, y_current, X_GOAL, Y_GOAL) 
                 state = StatesEnum.FOLLOW_BOUNDARY
             else:
                 sin_theta = math.sin(theta)
                 cos_theta = math.cos(theta)
                 move_robot(ROBOT_SPEED * cos_theta, ROBOT_SPEED * sin_theta, theta_dot , robot_position[2])
         elif state == StatesEnum.FOLLOW_BOUNDARY:
+            iteration_bound += 1
+
+            if abs(y_current - m * x_current + c) < EPSILON and iteration_bound > 300:
+                current_distance_to_goal = euclid_distance(x_current, y_current, X_GOAL, Y_GOAL)
+                if current_distance_to_goal < distance_to_goal_hitpoint:
+                    iteration_bound = 0
+                    distance_to_goal_hitpoint = current_distance_to_goal
+                    hit_point = (x_current, y_current)
+                    state = StatesEnum.MOVE_TOWARD_T
+                    counter = 0
+                    while robot.step(TIME_STEP) != -1 and counter <= 100: 
+                        gps_values,compass_val,sonar_value,position_value,ir_value = read_sensors_values()
+        
+                        theta = math.atan2(Y_GOAL - gps_values[1], X_GOAL - gps_values[0]) * 180 / math.pi
+                        sin_theta = math.sin(theta)
+                        cos_theta = math.cos(theta)
+                        move_robot(ROBOT_SPEED * cos_theta, ROBOT_SPEED * sin_theta, theta_dot , robot_position[2])
+                        counter += 1
+                    IS_LEFT = not IS_LEFT
+
             if not check_if_obstacle(ir_value): 
-                print('jaye eshtebah')
                 state = StatesEnum.MOVE_TOWARD_T
             else:
                 obstacle_directions = check_if_obstacle(ir_value)
-                print('obs ', obstacle_directions)
+                print('obstacle ', obstacle_directions)
                 follow_wall(obstacle_directions, theta_dot, robot_position)
         elif state == StatesEnum.STOP:
-            ...
+            move_robot(0, 0, 0, robot_position[2])
 
         
     pass
