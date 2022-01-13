@@ -6,7 +6,7 @@ import numpy as np
 from initialization import * 
 from controller import GPS, Compass, DistanceSensor
 import math
-from typing import List
+from typing import List, Tuple
 ############################################# Variables
 TIME_STEP = 32
 GPS_SAMPLING_PERIOD = 1000
@@ -82,45 +82,76 @@ def calculate_theta_dot(inertial_theta):
         inertial_theta = -(360 - inertial_theta)
     return inertial_theta
 
-def check_if_obstacle(ir_value) -> Direction:
-    print('ir value',ir_value)
-    
+
+def get_target_zone(theta: float) -> Direction:
+    if (theta >= 0 and theta <= 45) or (theta >= 315 and theta <= 360):
+        return Direction.RIGHT
+    if (theta > 45 and theta < 135):
+        return Direction.UP
+    if (theta >= 135 and theta < 225):
+        return Direction.LEFT
+    if (theta > 225 and theta < 315):
+        return Direction.DOWN
+    else:
+        print("===============================================================================================")
+
+
+def check_if_obstacle(ir_value, theta: float) -> Tuple[Direction, bool]:
+    bool_return_value = False
     ir_value_1, ir_value_2, ir_value_3, ir_value_4, ir_value_5, ir_value_6 = ir_value
+    target_zone = get_target_zone(theta)
+    if target_zone == Direction.UP:
+        if ir_value_3 < blind_spot_ir or ir_value_5 < blind_spot_ir:
+            bool_return_value = True
+    elif target_zone == Direction.LEFT:
+        if ir_value_6 < blind_spot_ir:
+            bool_return_value = True
+    elif target_zone == Direction.DOWN:
+        if ir_value_1 < blind_spot_ir or ir_value_4 < blind_spot_ir:
+            bool_return_value = True
+    elif target_zone == Direction.RIGHT:
+        if ir_value_2 < blind_spot_ir:
+            bool_return_value = True
+    else:
+        bool_return_value = False
     number_of_on_irs = sum([ 1 if value<1000 else 0  for value in ir_value])
-    print('num', number_of_on_irs)
-    if number_of_on_irs == 1 : 
+    direction_return_value = None
+    print(ir_value)
+    if number_of_on_irs == 1: 
         if ir_value_1 < blind_spot_ir: 
-            return Direction.CUREVE_DOWN
+            direction_return_value = Direction.CUREVE_DOWN
         elif ir_value_3 < blind_spot_ir: 
-            return Direction.CURVE
+            direction_return_value = Direction.CURVE
         elif ir_value_5 < blind_spot_ir: 
-            return Direction.CURVE_RIGHT
+            direction_return_value = Direction.CURVE_RIGHT
         elif ir_value_2 < blind_spot_ir:
-            return Direction.RIGHT
+            direction_return_value = Direction.RIGHT
         elif ir_value_6 < blind_spot_ir: 
-            return Direction.LEFT
+            direction_return_value = Direction.LEFT
 
     elif number_of_on_irs == 2 : 
         if ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir:
-            return Direction.DOWN
+            direction_return_value = Direction.DOWN
         if ir_value_3 < blind_spot_ir and ir_value_5 < blind_spot_ir:
-            return Direction.UP
+            direction_return_value = Direction.UP
         if ir_value_6 < blind_spot_ir and ir_value_3 < blind_spot_ir:
-            return Direction.LEFT
+            direction_return_value = Direction.LEFT
         if ir_value_2 < blind_spot_ir and ir_value_5 < blind_spot_ir:
-            return Direction.RIGHT 
+            direction_return_value = Direction.RIGHT 
 
     elif number_of_on_irs >= 3: 
         if ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir and ir_value_2 < blind_spot_ir: 
-            return Direction.RIGHT_DOWN_CORNER
+            direction_return_value = Direction.RIGHT_DOWN_CORNER
         elif ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir and ir_value_6 < blind_spot_ir:
-            return Direction.LEFT_DOWN_CORNER
+            direction_return_value = Direction.LEFT_DOWN_CORNER
         elif ir_value_3 < blind_spot_ir and ir_value_5 < blind_spot_ir and ir_value_6 < blind_spot_ir:
-            return Direction.LEFT_CORNER
+            direction_return_value = Direction.LEFT_CORNER
         elif ir_value_2 < blind_spot_ir and ir_value_5 < blind_spot_ir and ir_value_3 < blind_spot_ir: 
-            return Direction.RIGHT_CORNER
+            direction_return_value = Direction.RIGHT_CORNER
+    else:
+        direction_return_value = None
 
-    return None
+    return direction_return_value, bool_return_value
 
 
 def follow_wall(direction, theta_dot, robot_position): 
@@ -133,7 +164,7 @@ def follow_wall(direction, theta_dot, robot_position):
     elif direction == Direction.DOWN: 
         if IS_LEFT == True: 
             move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
-        else : 
+        else: 
             move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
     elif direction == Direction.RIGHT: 
         move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
@@ -141,6 +172,7 @@ def follow_wall(direction, theta_dot, robot_position):
         move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
     elif direction == Direction.CURVE_RIGHT:
         counter = 0
+        print("!!!!!!HERE!!!!!")
         while robot.step(TIME_STEP) != -1 and counter <= 400: 
             if counter <= 120: 
                 move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
@@ -189,16 +221,9 @@ def follow_wall(direction, theta_dot, robot_position):
         # up 
         move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])  
 
-
-def make_line(x1, y1, x2, y2):
-    if abs(x2 - x1) < EPSILON_LINE:
-        return None, None
-    m = (y2 - y1) / (x2 - x1)
-    c = m * x1 - y1
-    return m, c
-
 def euclid_distance(x1, y1, x2, y2):
     return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
 
 
 if __name__ == "__main__":
@@ -206,7 +231,6 @@ if __name__ == "__main__":
     robot = init_robot(time_step=TIME_STEP)
     goal_postition = np.array([0,0])
     state: StatesEnum = StatesEnum.MOVE_TOWARD_T
-    m, c = make_line(X_START, Y_START, X_GOAL, Y_GOAL)
 
     iteration_bound = 0
     while robot.step(TIME_STEP) != -1:
@@ -216,41 +240,25 @@ if __name__ == "__main__":
         inertial_theta = get_bearing_in_degrees(compass_val)
         theta_dot = calculate_theta_dot(inertial_theta)
         if state == StatesEnum.MOVE_TOWARD_T:
-            if check_if_obstacle(ir_value): # if it detects an obstacle 
-                hit_point = (x_current, y_current) 
-                distance_to_goal_hitpoint = euclid_distance(x_current, y_current, X_GOAL, Y_GOAL) 
+            direction_temp, bool_temp = check_if_obstacle(ir_value, theta)
+            if direction_temp and bool_temp: # if it detects an obstacle 
                 state = StatesEnum.FOLLOW_BOUNDARY
             else:
                 sin_theta = math.sin(theta)
                 cos_theta = math.cos(theta)
                 move_robot(ROBOT_SPEED * cos_theta, ROBOT_SPEED * sin_theta, theta_dot , robot_position[2])
         elif state == StatesEnum.FOLLOW_BOUNDARY:
-            iteration_bound += 1
-
-            if abs(y_current - m * x_current + c) < EPSILON and iteration_bound > 300:
-                current_distance_to_goal = euclid_distance(x_current, y_current, X_GOAL, Y_GOAL)
-                if current_distance_to_goal < distance_to_goal_hitpoint:
-                    iteration_bound = 0
-                    distance_to_goal_hitpoint = current_distance_to_goal
-                    hit_point = (x_current, y_current)
-                    state = StatesEnum.MOVE_TOWARD_T
-                    counter = 0
-                    while robot.step(TIME_STEP) != -1 and counter <= 100: 
-                        gps_values,compass_val,sonar_value,position_value,ir_value = read_sensors_values()
-        
-                        theta = math.atan2(Y_GOAL - gps_values[1], X_GOAL - gps_values[0]) * 180 / math.pi
-                        sin_theta = math.sin(theta)
-                        cos_theta = math.cos(theta)
-                        move_robot(ROBOT_SPEED * cos_theta, ROBOT_SPEED * sin_theta, theta_dot , robot_position[2])
-                        counter += 1
-                    IS_LEFT = not IS_LEFT
-
-            if not check_if_obstacle(ir_value): 
-                state = StatesEnum.MOVE_TOWARD_T
+            if euclid_distance(x_current, y_current, X_GOAL, Y_GOAL) <= EPSILON_LINE: 
+                state = StatesEnum.STOP
             else:
-                obstacle_directions = check_if_obstacle(ir_value)
-                print('obstacle ', obstacle_directions)
-                follow_wall(obstacle_directions, theta_dot, robot_position)
+                direction_temp, bool_temp = check_if_obstacle(ir_value, theta)
+                print(bool_temp)
+                if not direction_temp or not bool_temp:
+                    state = StatesEnum.MOVE_TOWARD_T
+                    IS_LEFT = not IS_LEFT
+                else:
+                    print('obstacle ', direction_temp)
+                    follow_wall(direction_temp, theta_dot, robot_position)
         elif state == StatesEnum.STOP:
             move_robot(0, 0, 0, robot_position[2])
 
