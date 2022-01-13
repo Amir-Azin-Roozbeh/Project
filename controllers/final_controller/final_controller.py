@@ -11,9 +11,9 @@ from typing import List
 TIME_STEP = 32
 GPS_SAMPLING_PERIOD = 1000
 COMPASS_SAMPLING_PERIOD = 1000
-blind_spot_ir = 999
+blind_spot_ir = 900
 X_GOAL = -0.270026
-Y_GOAL = -1.35
+Y_GOAL = 9.34
 THETA_ACCURACY_THRESH = 10
 ROBOT_SPEED = 10
 ############################################ Class
@@ -81,6 +81,9 @@ def check_if_obstacle(ir_value) -> Direction:
             return Direction.CURVE_UP
         elif ir_value_5 < blind_spot_ir: 
             return Direction.CURVE_RIGHT
+        elif ir_value_2 < blind_spot_ir:
+            return Direction.RIGHT
+
     elif number_of_on_irs == 2 : 
         if ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir:
             return Direction.DOWN
@@ -90,6 +93,7 @@ def check_if_obstacle(ir_value) -> Direction:
             return Direction.LEFT
         if ir_value_2 < blind_spot_ir and ir_value_5 < blind_spot_ir:
             return Direction.RIGHT 
+
     elif number_of_on_irs >= 3: 
         if ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir and ir_value_2 < blind_spot_ir: 
             return Direction.RIGHT_DOWN_CORNER
@@ -157,6 +161,7 @@ def follow_wall(direction, theta_dot, robot_position):
     elif direction == Direction.LEFT_DOWN_CORNER:  
         pass 
     elif direction == Direction.RIGHT_DOWN_CORNER: 
+        print("mirim balaaa")
         # up 
         move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])  
 
@@ -176,6 +181,7 @@ if __name__ == "__main__":
         inertial_theta = get_bearing_in_degrees(compass_val)
         theta_dot = calculate_theta_dot(inertial_theta)
         print('state ', state)
+        print('ir value:', ir_value)
         if state == StatesEnum.MOVE_TOWARD_T:
             if check_if_obstacle(ir_value): # if it detects an obstacle  
                 state = StatesEnum.FOLLOW_BOUNDARY
@@ -185,6 +191,7 @@ if __name__ == "__main__":
                 move_robot(ROBOT_SPEED * cos_theta, ROBOT_SPEED * sin_theta, theta_dot , robot_position[2])
         elif state == StatesEnum.FOLLOW_BOUNDARY:
             if not check_if_obstacle(ir_value): 
+                print('jaye eshtebah')
                 state = StatesEnum.MOVE_TOWARD_T
             else:
                 obstacle_directions = check_if_obstacle(ir_value)
@@ -193,15 +200,6 @@ if __name__ == "__main__":
         elif state == StatesEnum.STOP:
             ...
 
-        # if ir_value_1 < blind_spot_ir: 
-        #     move_robot(0, -10, 0, robot_position[2])
-        # else : 
-        #     move_robot(-10, 0, 0, robot_position[2])
-        # update_robot_state(ir_value_1) 
-        # move_robot('right') 
-        # DEFINE STATE MACHINE HERE!
-
-        # update_motor_speed(input_omega=[0,0,0])
         
     pass
 
