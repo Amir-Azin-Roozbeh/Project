@@ -27,10 +27,17 @@ class Direction:
     RIGHT = 1
     UP = 2 
     DOWN = 3
-    UP_RIGHT_CORNER = 4
-    UP_LEFT_CORNER = 5 
-    DOWN_RIGHT_CORNER = 6 
-    DOWN_LEFT_CORNER = 7
+    # UP_RIGHT_CORNER = 4
+    # UP_LEFT_CORNER = 5 
+    # DOWN_RIGHT_CORNER = 6 
+    # DOWN_LEFT_CORNER = 7
+    CUREVE_DOWN = 8
+    CURVE_UP = 9 
+    CURVE_RIGHT = 10
+    RIGHT_DOWN_CORNER = 11 
+    RIGHT_UP_CORNER = 12
+    LEFT_UP_CORNER = 13
+    LEFT_DOWN_CORNER = 14
 ############################################ Util functions
 def calc_distance_to_destination(robot):
     x, z = get_robot_coordinate(robot)
@@ -59,88 +66,99 @@ def move_robot(x, y, theta, heading):
     speed = np.matmul(inverse_matrix, temp)
     update_motor_speed(speed)
 
-# def calc_theta_dot(heading, destination_theta) :
-#     theta_dot = destination_theta - heading
-#     if theta_dot > 180:
-#         theta_dot = -(360-theta_dot)
-#     elif theta_dot < -180:
-#         theta_dot = (360+theta_dot)
-#     return theta_dot
-
-# def calculate_theta(x, y, compass_val):
-#     heading = get_robot_heading(compass_val)
-#     theta = math.atan2(Y_GOAL - y, X_GOAL - x) * 180 / math.pi
-#     return calc_theta_dot(heading, theta)
-
 def calculate_theta_dot(inertial_theta): 
     if inertial_theta >= 180: 
         inertial_theta = -(360 - inertial_theta)
     return inertial_theta
 
-def check_if_obstacle(ir_value) -> List[Direction]:
-    directions = []
+def check_if_obstacle(ir_value) -> Direction:
     ir_value_1, ir_value_2, ir_value_3, ir_value_4, ir_value_5, ir_value_6 = ir_value
-    if ir_value_5 < blind_spot_ir and ir_value_3 >= blind_spot_ir and ir_value_2 >= blind_spot_ir:
-        return [Direction.UP_RIGHT_CORNER]
-    if ir_value_3 < blind_spot_ir and ir_value_6 >= blind_spot_ir and ir_value_5 >= blind_spot_ir: 
-        return [Direction.UP_LEFT_CORNER]
-    if ir_value_1 < blind_spot_ir or ir_value_4 < blind_spot_ir:
-        directions.append(Direction.DOWN)
-    if ir_value_3 < blind_spot_ir or ir_value_5 < blind_spot_ir:
-        directions.append(Direction.UP)
-    if ir_value_6 < blind_spot_ir:
-        directions.append(Direction.LEFT)
-    if ir_value_2 < blind_spot_ir:
-        directions.append(Direction.RIGHT)
-
-    return directions
-
-
-
-
-def follow_wall(obstacle_directions):
-    number_of_obstacles = len(obstacle_directions)
-    if number_of_obstacles == 1 : 
-        if Direction.UP in obstacle_directions: 
-            return Direction.RIGHT
-        if Direction.DOWN in obstacle_directions: 
-            return Direction.RIGHT
-        if Direction.RIGHT in obstacle_directions: 
-            return Direction.UP
-        if Direction.LEFT in obstacle_directions: 
+    number_of_on_irs = sum([ 1 if value<1000 else 0  for value in ir_value])
+    if number_of_on_irs == 1 : 
+        if ir_value_1 < blind_spot_ir: 
+            return Direction.CUREVE_DOWN
+        elif ir_value_3 < blind_spot_ir: 
+            return Direction.CURVE_UP
+        elif ir_value_5 < blind_spot_ir: 
+            return Direction.CURVE_RIGHT
+    elif number_of_on_irs == 2 : 
+        if ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir:
             return Direction.DOWN
-        return obstacle_directions[0]
+        if ir_value_3 < blind_spot_ir and ir_value_5 < blind_spot_ir:
+            return Direction.UP
+        if ir_value_6 < blind_spot_ir and ir_value_3 < blind_spot_ir:
+            return Direction.LEFT
+        if ir_value_2 < blind_spot_ir and ir_value_5 < blind_spot_ir:
+            return Direction.RIGHT 
+    elif number_of_on_irs >= 3: 
+        if ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir and ir_value_2 < blind_spot_ir: 
+            return Direction.RIGHT_DOWN_CORNER
+        elif ir_value_1 < blind_spot_ir and ir_value_4 < blind_spot_ir and ir_value_6 < blind_spot_ir:
+            return Direction.LEFT_DOWN_CORNER
+        elif ir_value_3 < blind_spot_ir and ir_value_5 < blind_spot_ir and ir_value_6 < blind_spot_ir:
+            return Direction.LEFT_UP_CORNER
+        elif ir_value_2 < blind_spot_ir and ir_value_5 < blind_spot_ir and ir_value_3 < blind_spot_ir: 
+            return Direction.RIGHT_UP_CORNER
+
+    return None
 
 
-
-
-def move(direction, theta_dot, robot_position): 
+def follow_wall(direction, theta_dot, robot_position): 
     if direction == Direction.UP: 
-        move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
-    elif direction == Direction.DOWN: 
-        move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
-    elif direction == Direction.RIGHT: 
-        move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
-    elif direction == Direction.LEFT:
         move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
-    elif direction == Direction.UP_RIGHT_CORNER:
+    elif direction == Direction.DOWN: 
+        move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
+    elif direction == Direction.RIGHT: 
+        move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
+    elif direction == Direction.LEFT:
+        move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
+    elif direction == Direction.CURVE_RIGHT:
         counter = 0
-        while robot.step(TIME_STEP) != -1 and counter <= 200: 
+        while robot.step(TIME_STEP) != -1 and counter <= 400: 
             if counter <= 120: 
                 move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
-            else: 
-                move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
-            counter += 1
-    elif direction == Direction.UP_LEFT_CORNER: 
-        counter = 0
-        while robot.step(TIME_STEP) != -1 and counter <= 300: 
-            if counter <= 100: 
-                move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
             elif counter <= 250: 
                 move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
+            else: 
+                move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
+            counter += 1
+    elif direction == Direction.CUREVE_DOWN: 
+        counter = 0
+        while robot.step(TIME_STEP) != -1 and counter <= 300: 
+            if counter <= 120: 
+                #RIGHT 
+                move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
+            elif counter <= 200: 
+                #UP 
+                move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
             else:
+                #LEFT 
                 move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
             counter += 1
+    elif direction == Direction.CURVE_UP: 
+        counter = 0
+        while robot.step(TIME_STEP) != -1 and counter <= 300: 
+            if counter <= 120: 
+                #DOWN 
+                move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
+            elif counter <= 200: 
+                #RIGHT
+                move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
+            else:
+                #UP
+                move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])
+            counter += 1
+    elif direction == Direction.LEFT_UP_CORNER: 
+        # down
+        move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
+    elif direction == Direction.RIGHT_UP_CORNER: 
+        # left
+        move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2]) 
+    elif direction == Direction.LEFT_DOWN_CORNER:  
+        pass 
+    elif direction == Direction.RIGHT_DOWN_CORNER: 
+        # up 
+        move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])  
 
 
 if __name__ == "__main__":
@@ -148,18 +166,16 @@ if __name__ == "__main__":
     robot = init_robot(time_step=TIME_STEP)
     goal_postition = np.array([0,0])
     state: StatesEnum = StatesEnum.MOVE_TOWARD_T
-    # DEFINE STATES HERE!
-    
+
     while robot.step(TIME_STEP) != -1:
 
         gps_values,compass_val,sonar_value,position_value,ir_value = read_sensors_values()
         
         x_current, y_current, _ = gps_values
-        print(ir_value)
         theta = math.atan2(Y_GOAL - gps_values[1], X_GOAL - gps_values[0]) * 180 / math.pi
         inertial_theta = get_bearing_in_degrees(compass_val)
         theta_dot = calculate_theta_dot(inertial_theta)
-        
+        print('state ', state)
         if state == StatesEnum.MOVE_TOWARD_T:
             if check_if_obstacle(ir_value): # if it detects an obstacle  
                 state = StatesEnum.FOLLOW_BOUNDARY
@@ -172,9 +188,8 @@ if __name__ == "__main__":
                 state = StatesEnum.MOVE_TOWARD_T
             else:
                 obstacle_directions = check_if_obstacle(ir_value)
-                print(obstacle_directions)
-                move_direction = follow_wall(obstacle_directions)
-                move(move_direction, theta_dot, robot_position)
+                print('obs ', obstacle_directions)
+                follow_wall(obstacle_directions, theta_dot, robot_position)
         elif state == StatesEnum.STOP:
             ...
 
@@ -189,3 +204,7 @@ if __name__ == "__main__":
         # update_motor_speed(input_omega=[0,0,0])
         
     pass
+
+
+
+## (-10, 0) --> left 
