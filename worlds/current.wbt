@@ -11,8 +11,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.9987254237364507 0.003121027108775737 0.05037645454211032 0.1239075265542756
-  position 1.2678953713643741 -11.890163563163227 78.85893642637589
+  orientation 0.9991731639246382 0.003122426301418088 0.04053688378280209 0.15387672994826243
+  position 1.4685310254316057 -16.81999478127195 97.82875435458745
 }
 TexturedBackground {
 }
@@ -20,7 +20,7 @@ TexturedBackgroundLight {
   castShadows FALSE
 }
 Robot {
-  translation -0.6154269490988825 -8.325176168430703 0.000540846178734733
+  translation 1.03784 -8.96739 -0.048481
   rotation 0.0034185949878156137 0.0021345993930489402 -0.9999918783138894 1.5748343421984
   children [
     GPS {
@@ -1776,7 +1776,7 @@ Robot {
   controller "final_controller"
 }
 Solid {
-  translation -0.269996 -9.19 2.69304e-07
+  translation -0.270059 9.34 4.19661e-05
   rotation 0.5773496025232256 0.5773506025225371 0.5773506025225371 2.0944
   children [
     Solid {
@@ -1796,7 +1796,7 @@ Solid {
   name "map_1(15)"
 }
 Solid {
-  translation 1.30001 -9.74 -4.50057e-06
+  translation 1.14001 -8.96 -2.38531e-06
   rotation 0.5773496025232256 0.5773506025225371 0.5773506025225371 2.0944
   children [
     Solid {
@@ -1816,7 +1816,7 @@ Solid {
   name "map_1(14)"
 }
 RectangleArena {
-  translation 2.14003 -13.23 -8.62486e-05
+  translation 2.14003 -2.58 -1.92394e-05
   rotation 0.5773502691873165 0.5773482691863839 0.5773522691882489 2.0944
   floorSize 40 40
   floorTileSize 1 1
@@ -1846,7 +1846,7 @@ RectangleArena {
   }
 }
 Solid {
-  translation 0 0 -0.7
+  translation 0 2.21 -0.7
   children [
     Wall {
       translation -2.95 -1.67 2.46
