@@ -172,8 +172,7 @@ def follow_wall(direction, theta_dot, robot_position):
         move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
     elif direction == Direction.CURVE_RIGHT:
         counter = 0
-        print("!!!!!!HERE!!!!!")
-        while robot.step(TIME_STEP) != -1 and counter <= 400: 
+        while robot.step(TIME_STEP) != -1 and counter <= 275: 
             if counter <= 120: 
                 move_robot(-ROBOT_SPEED, 0, theta_dot, robot_position[2])
             elif counter <= 250: 
@@ -183,11 +182,11 @@ def follow_wall(direction, theta_dot, robot_position):
             counter += 1
     elif direction == Direction.CUREVE_DOWN: 
         counter = 0
-        while robot.step(TIME_STEP) != -1 and counter <= 300: 
+        while robot.step(TIME_STEP) != -1 and counter <= 275: 
             if counter <= 120: 
                 #RIGHT 
                 move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
-            elif counter <= 200: 
+            elif counter <= 250: 
                 #UP 
                 move_robot(0, -ROBOT_SPEED, theta_dot, robot_position[2])
             else:
@@ -196,7 +195,7 @@ def follow_wall(direction, theta_dot, robot_position):
             counter += 1
     elif direction == Direction.CURVE: 
         counter = 0
-        while robot.step(TIME_STEP) != -1 and counter <= 400: 
+        while robot.step(TIME_STEP) != -1 and counter <= 275: 
             if counter <= 120: 
                 #RIGHT 
                 move_robot(ROBOT_SPEED, 0, theta_dot, robot_position[2])
