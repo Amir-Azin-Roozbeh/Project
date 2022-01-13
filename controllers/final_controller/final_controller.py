@@ -14,6 +14,7 @@ blind_spot_ir = 1000
 X_GOAL = -0.270026
 Y_GOAL = -1.35
 THETA_ACCURACY_THRESH = 10
+ROBOT_SPEED = 10
 ############################################ Util functions
 def calc_distance_to_destination(robot):
     x, z = get_robot_coordinate(robot)
@@ -42,24 +43,25 @@ def move_robot(x, y, theta, heading):
     speed = np.matmul(inverse_matrix, temp)
     update_motor_speed(speed)
 
-def calc_theta_dot(heading, destination_theta) :
-    theta_dot = destination_theta - heading
-    if theta_dot > 180:
-        theta_dot = -(360-theta_dot)
-    elif theta_dot < -180:
-        theta_dot = (360+theta_dot)
-    return theta_dot
+# def calc_theta_dot(heading, destination_theta) :
+#     theta_dot = destination_theta - heading
+#     if theta_dot > 180:
+#         theta_dot = -(360-theta_dot)
+#     elif theta_dot < -180:
+#         theta_dot = (360+theta_dot)
+#     return theta_dot
 
-def calculate_theta(x, y, compass_val):
-    heading = get_robot_heading(compass_val)
-    theta = math.atan2(Y_GOAL - y, X_GOAL - x) * 180 / math.pi
-    return calc_theta_dot(heading, theta)
+# def calculate_theta(x, y, compass_val):
+#     heading = get_robot_heading(compass_val)
+#     theta = math.atan2(Y_GOAL - y, X_GOAL - x) * 180 / math.pi
+#     return calc_theta_dot(heading, theta)
 
+def calculate_theta_dot(inertial_theta): 
+    return -(inertial_theta - 180)/18
 
 def get_robot_angle_with_target():
     pass
  
-
 class StatesEnum: # Enum
     MOVE_TOWARD_T = 0
     FOLLOW_BOUNDARY = 1
@@ -81,14 +83,16 @@ if __name__ == "__main__":
         robot_position = update_robot_state()
         # theta = get_bearing_in_degrees(compass_val)
         theta = math.atan2(Y_GOAL - gps_values[1], X_GOAL - gps_values[0]) * 180 / math.pi
-        print(theta)
+        inertial_theta = get_bearing_in_degrees(compass_val)
+        theta_dot = calculate_theta_dot(inertial_theta)
+        
         if state == StatesEnum.MOVE_TOWARD_T:
             if ir_value_1 < blind_spot_ir: # if it detects an obstacle  
                 state = StatesEnum.FOLLOW_BOUNDARY
             else:
                 sin_theta = math.sin(theta)
                 cos_theta = math.cos(theta)
-                move_robot(10 * cos_theta, 10 * sin_theta, 0, robot_position[2])
+                move_robot(ROBOT_SPEED * cos_theta, ROBOT_SPEED * sin_theta, theta_dot , robot_position[2])
         elif state == StatesEnum.FOLLOW_BOUNDARY:
             move_robot(0, 0, 0, robot_position[2])
         elif state == StatesEnum.STOP:
