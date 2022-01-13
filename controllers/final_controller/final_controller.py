@@ -12,10 +12,17 @@ TIME_STEP = 32
 GPS_SAMPLING_PERIOD = 1000
 COMPASS_SAMPLING_PERIOD = 1000
 blind_spot_ir = 900
+
 X_GOAL = -0.270026
 Y_GOAL = 9.34
+
 THETA_ACCURACY_THRESH = 10
 ROBOT_SPEED = 10
+EPSILON = 0.001
+
+X_START = 1.14
+Y_START = -8.96
+
 ############################################ Class
 class StatesEnum: # Enum
     MOVE_TOWARD_T = 0
@@ -166,11 +173,21 @@ def follow_wall(direction, theta_dot, robot_position):
         move_robot(0, ROBOT_SPEED, theta_dot, robot_position[2])  
 
 
+def make_line(x1, y1, x2, y2):
+    if abs(x2 - x1) < EPSILON:
+        return None, None
+    m = (y2 - y1) / (x2 - x1)
+    c = m * x1 - y1
+    return m, c
+
+
+
 if __name__ == "__main__":
 
     robot = init_robot(time_step=TIME_STEP)
     goal_postition = np.array([0,0])
     state: StatesEnum = StatesEnum.MOVE_TOWARD_T
+    m, c = make_line(X_START, Y_START, X_GOAL, Y_GOAL)
 
     while robot.step(TIME_STEP) != -1:
 
